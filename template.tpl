@@ -1,12 +1,4 @@
-﻿___TERMS_OF_SERVICE___
-
-By creating or modifying this file you agree to Google Tag Manager's Community
-Template Gallery Developer Terms of Service available at
-https://developers.google.com/tag-manager/gallery-tos (or such other URL as
-Google may provide), as modified from time to time.
-
-
-___INFO___
+﻿___INFO___
 
 {
   "type": "TAG",
@@ -14,7 +6,11 @@ ___INFO___
   "version": 1,
   "securityGroups": [],
   "displayName": "Join Stories - Checkout Tracking Code",
-  "categories": ["ANALYTICS", "MARKETING", "SESSION_RECORDING"],
+  "categories": [
+    "ANALYTICS",
+    "MARKETING",
+    "SESSION_RECORDING"
+  ],
   "brand": {
     "id": "brand_dummy",
     "displayName": "Join Stories",
@@ -39,7 +35,8 @@ ___TEMPLATE_PARAMETERS___
       {
         "type": "NON_EMPTY"
       }
-    ]
+    ],
+    "help": "Unique identifier for the transaction"
   },
   {
     "type": "TEXT",
@@ -50,7 +47,8 @@ ___TEMPLATE_PARAMETERS___
       {
         "type": "NON_EMPTY"
       }
-    ]
+    ],
+    "help": "Total amount before discounts"
   },
   {
     "type": "TEXT",
@@ -61,7 +59,8 @@ ___TEMPLATE_PARAMETERS___
       {
         "type": "NON_EMPTY"
       }
-    ]
+    ],
+    "help": "Total amount after discounts"
   },
   {
     "type": "TEXT",
@@ -72,7 +71,8 @@ ___TEMPLATE_PARAMETERS___
       {
         "type": "NON_EMPTY"
       }
-    ]
+    ],
+    "help": "Currency code"
   },
   {
     "type": "TEXT",
@@ -159,6 +159,7 @@ const callInWindow = require('callInWindow');
 const makeNumber = require('makeNumber');
 const assertThat = require('assertThat');
 const log = require('logToConsole');
+const copyFromWindow = require('copyFromWindow');
 
 if (!assertThat(data.products).isArray()) {
   log('[Failed] Join Stories - Checkout Tracking Code : products is not an array.');
@@ -187,12 +188,11 @@ const payload = {
   products: products,
 };
 
-log('payload =', payload);
+const fn = copyFromWindow("JoinStories.sendCartValidated");
 
-const call = callInWindow("JoinStories.sendCartValidated", payload);
-
-if (call) {
-  log('[Success] Join Stories - Checkout Tracking Code.');
+if (fn) {
+  callInWindow('JoinStories.sendCartValidated', payload);
+  log('[Success] Join Stories - Checkout Tracking Code.', payload);
   data.gtmOnSuccess();
 } else {
   log('[Failed] Join Stories - Checkout Tracking Code : sendCartValidated not found.');
@@ -214,7 +214,7 @@ ___WEB_PERMISSIONS___
           "key": "environments",
           "value": {
             "type": 1,
-            "string": "debug"
+            "string": "all"
           }
         }
       ]
@@ -263,7 +263,7 @@ ___WEB_PERMISSIONS___
                   },
                   {
                     "type": 8,
-                    "boolean": false
+                    "boolean": true
                   },
                   {
                     "type": 8,
