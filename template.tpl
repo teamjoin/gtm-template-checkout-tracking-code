@@ -97,65 +97,74 @@ ___TEMPLATE_PARAMETERS___
   {
     "type": "GROUP",
     "name": "product_map_keys",
-    "displayName": "Product mapping keys",
-    "groupStyle": "ZIPPY_OPEN",
+    "displayName": "Product mapping keys (optional)",
+    "groupStyle": "ZIPPY_CLOSED",
     "subParams": [
       {
         "type": "TEXT",
         "name": "pmk_product_id",
         "displayName": "product_id",
-        "simpleValueType": true
+        "simpleValueType": true,
+        "help": "Optional custom key. Fallback order: this key → <code>product_id</code> → GA4 <code>item_id</code>."
       },
       {
         "type": "TEXT",
         "name": "pmk_product_variant",
         "displayName": "product_variant",
-        "simpleValueType": true
+        "simpleValueType": true,
+        "help": "Optional custom key. Fallback order: this key → <code>product_variant</code> → GA4 <code>item_variant</code>."
       },
       {
         "type": "TEXT",
         "name": "pmk_product_price",
         "displayName": "product_price",
-        "simpleValueType": true
+        "simpleValueType": true,
+        "help": "Optional custom key. Fallback order: this key → <code>product_price</code> → GA4 <code>price</code>."
       },
       {
         "type": "TEXT",
         "name": "pmk_product_base_price",
         "displayName": "product_base_price",
-        "simpleValueType": true
+        "simpleValueType": true,
+        "help": "Optional custom key. Fallback order: this key → <code>product_base_price</code> → GA4 <code>price</code>."
       },
       {
         "type": "TEXT",
         "name": "pmk_product_final_price",
         "displayName": "product_final_price",
-        "simpleValueType": true
+        "simpleValueType": true,
+        "help": "Optional custom key. Fallback order: this key → <code>product_final_price</code> → GA4 <code>price</code>."
       },
       {
         "type": "TEXT",
         "name": "pmk_product_quantity",
         "displayName": "product_quantity",
-        "simpleValueType": true
+        "simpleValueType": true,
+        "help": "Optional custom key. Fallback order: this key → <code>product_quantity</code> → GA4 <code>quantity</code>."
       },
       {
         "type": "TEXT",
         "name": "pmk_currency",
         "displayName": "currency",
-        "simpleValueType": true
+        "simpleValueType": true,
+        "help": "Optional custom key. Fallback order: this key → <code>currency</code> on the product → the top-level Currency field."
       },
       {
         "type": "TEXT",
         "name": "pmk_product_name",
         "displayName": "product_name",
-        "simpleValueType": true
+        "simpleValueType": true,
+        "help": "Optional custom key. Fallback order: this key → <code>product_name</code> → GA4 <code>item_name</code>."
       },
       {
         "type": "TEXT",
         "name": "pmk_product_image_url",
         "displayName": "product_image_url",
-        "simpleValueType": true
+        "simpleValueType": true,
+        "help": "Optional custom key. Fallback to <code>product_image_url</code>. No GA4 equivalent."
       }
     ],
-    "help": "Mapping list of the product object\u0027s keys."
+    "help": "Optional. Override the keys read from each product object. If left empty, the tag falls back to the standard <code>product_*</code> keys, then to GA4 <code>items[]</code> conventions (<code>item_id</code>, <code>item_name</code>, <code>item_variant</code>, <code>price</code>, <code>quantity</code>)."
   }
 ]
 
@@ -175,15 +184,15 @@ if (!assertThat(data.products).isArray()) {
 }
 
 const products = data.products.map((p) => {
-  return {    
-    product_id: p[data.pmk_product_id] || p.product_id,
-    product_variant: p[data.pmk_product_variant] || p.product_variant,
-    product_price: p[data.pmk_product_price] || p.product_price,
-    product_base_price: p[data.pmk_product_base_price] || p.product_base_price,
-    product_final_price: p[data.pmk_product_final_price] || p.product_final_price,
-    product_quantity: p[data.pmk_product_quantity] || p.product_quantity,
-    currency: p[data.pmk_currency] || p.currency,
-    product_name: p[data.pmk_product_name] || p.product_name,
+  return {
+    product_id: p[data.pmk_product_id] || p.product_id || p.item_id,
+    product_variant: p[data.pmk_product_variant] || p.product_variant || p.item_variant,
+    product_price: p[data.pmk_product_price] || p.product_price || p.price,
+    product_base_price: p[data.pmk_product_base_price] || p.product_base_price || p.price,
+    product_final_price: p[data.pmk_product_final_price] || p.product_final_price || p.price,
+    product_quantity: p[data.pmk_product_quantity] || p.product_quantity || p.quantity,
+    currency: p[data.pmk_currency] || p.currency || data.currency,
+    product_name: p[data.pmk_product_name] || p.product_name || p.item_name,
     product_image_url: p[data.pmk_product_image_url] || p.product_image_url,
   };
 });
