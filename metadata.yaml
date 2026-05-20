@@ -1,6 +1,8 @@
 homepage: "https://join-stories.com"
 documentation: "https://help.join-stories.com"
 versions:
+  - sha: df28d03dce3fef90db977db3109d2035957de750
+    changeNotes: Add GA4 items[] fallback (item_id, item_name, item_variant, price, quantity) for product mapping; product mapping keys are now optional.
   - sha: f9589e196e2604d1d77a039200df3b503790ce31
     changeNotes: New release.
   - sha: 2f6d2df42f8abeb3e299eea21ed2b8f61e52f859
