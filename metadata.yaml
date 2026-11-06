@@ -1,8 +1,8 @@
 homepage: "https://join-stories.com"
 documentation: "https://help.join-stories.com"
 versions:
-  - sha: 5819d7f1898464568df0ffcf7d67d19ed889d454
-    changeNotes: Wait up to five seconds for JOIN analytics readiness before checkout; request read access to joinStories.globalScript.loaded and execute access to setTimeout.
+  - sha: 0bb6fbf7f1baebc8226dfcee049f21af124a9b1a
+    changeNotes: Wait up to five seconds for JOIN analytics readiness using native GTM scheduling; request read access to joinStories.globalScript.loaded.
   - sha: df28d03dce3fef90db977db3109d2035957de750
     changeNotes: Add GA4 items[] fallback (item_id, item_name, item_variant, price, quantity) for product mapping; product mapping keys are now optional.
   - sha: f9589e196e2604d1d77a039200df3b503790ce31
