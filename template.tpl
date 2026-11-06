@@ -209,7 +209,8 @@ let attemptsLeft = 50;
 
 function validateCart() {
   const fn = copyFromWindow('JoinStories.sendCartValidated');
-  if (fn) {
+  const analyticsReady = copyFromWindow('joinStories.globalScript.loaded');
+  if (fn && analyticsReady) {
     callInWindow('JoinStories.sendCartValidated', payload);
     log('[Success] Join Stories - Checkout Tracking Code.', payload);
     data.gtmOnSuccess();
@@ -338,6 +339,45 @@ ___WEB_PERMISSIONS___
                   {
                     "type": 8,
                     "boolean": true
+                  }
+                ]
+              },
+              {
+                "type": 3,
+                "mapKey": [
+                  {
+                    "type": 1,
+                    "string": "key"
+                  },
+                  {
+                    "type": 1,
+                    "string": "read"
+                  },
+                  {
+                    "type": 1,
+                    "string": "write"
+                  },
+                  {
+                    "type": 1,
+                    "string": "execute"
+                  }
+                ],
+                "mapValue": [
+                  {
+                    "type": 1,
+                    "string": "joinStories.globalScript.loaded"
+                  },
+                  {
+                    "type": 8,
+                    "boolean": true
+                  },
+                  {
+                    "type": 8,
+                    "boolean": false
+                  },
+                  {
+                    "type": 8,
+                    "boolean": false
                   }
                 ]
               }

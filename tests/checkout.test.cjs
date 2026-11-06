@@ -13,12 +13,13 @@ const source = template
   .split('___SANDBOXED_JS_FOR_WEB_TEMPLATE___')[1]
   .split('___WEB_PERMISSIONS___')[0];
 
-function checkout(ready = false) {
+function checkout(state = 'missing') {
   const calls = [];
   const logs = [];
   const timers = [];
   let now = 0;
-  let available = ready;
+  let available = state !== 'missing';
+  let analyticsReady = state === 'loaded';
   let successes = 0;
   let failures = 0;
   const data = {
@@ -36,8 +37,9 @@ function checkout(ready = false) {
     logToConsole: (...args) => logs.push(args),
     copyFromWindow: path => {
       assert.ok(globals.some(g => g.key === path && g.read), `Missing read permission for ${path}`);
-      assert.equal(path, 'JoinStories.sendCartValidated');
-      return available ? () => {} : undefined;
+      if (path === 'JoinStories.sendCartValidated') return available ? () => {} : undefined;
+      assert.equal(path, 'joinStories.globalScript.loaded');
+      return analyticsReady;
     },
     callInWindow: (path, ...args) => {
       assert.ok(globals.some(g => g.key === path && g.execute), `Missing execute permission for ${path}`);
@@ -46,7 +48,7 @@ function checkout(ready = false) {
         return timers.length;
       }
       assert.equal(path, 'JoinStories.sendCartValidated');
-      assert.ok(available);
+      assert.ok(available && analyticsReady);
       calls.push(JSON.parse(JSON.stringify(args[0])));
     },
   };
@@ -58,7 +60,8 @@ function checkout(ready = false) {
     calls, logs, timers,
     get successes() { return successes; },
     get failures() { return failures; },
-    ready() { available = true; },
+    ready() { available = true; analyticsReady = true; },
+    controllerReady() { available = true; },
     advance(ms) {
       const end = now + ms;
       while (timers.length && timers[0].at <= end) {
@@ -72,7 +75,7 @@ function checkout(ready = false) {
 }
 
 test('tracks immediately when the global script is ready', () => {
-  const tag = checkout(true);
+  const tag = checkout('loaded');
   assert.equal(tag.successes, 1);
   assert.equal(tag.failures, 0);
   assert.equal(tag.timers.length, 0);
@@ -113,6 +116,32 @@ test('accepts a global script that becomes ready at the last attempt', () => {
   tag.advance(4999);
   tag.ready();
   tag.advance(1);
+  assert.equal(tag.calls.length, 1);
+  assert.equal(tag.successes, 1);
+  assert.equal(tag.failures, 0);
+});
+
+
+test('waits when the controller exists before analytics initialization', () => {
+  const tag = checkout('controller');
+  tag.advance(200);
+  assert.equal(tag.calls.length, 0);
+  assert.equal(tag.successes, 0);
+  tag.ready();
+  tag.advance(5000);
+  assert.equal(tag.calls.length, 1);
+  assert.equal(tag.successes, 1);
+  assert.equal(tag.failures, 0);
+});
+
+test('keeps waiting when the controller appears before analytics during a retry', () => {
+  const tag = checkout();
+  tag.controllerReady();
+  tag.advance(200);
+  assert.equal(tag.calls.length, 0);
+  assert.equal(tag.successes, 0);
+  tag.ready();
+  tag.advance(5000);
   assert.equal(tag.calls.length, 1);
   assert.equal(tag.successes, 1);
   assert.equal(tag.failures, 0);
