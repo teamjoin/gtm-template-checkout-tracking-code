@@ -41,12 +41,10 @@ function checkout(state = 'missing') {
       assert.equal(path, 'joinStories.globalScript.loaded');
       return analyticsReady;
     },
+    callLater: callback => timers.push({ at: now + 1, callback }),
+    getTimestampMillis: () => now,
     callInWindow: (path, ...args) => {
       assert.ok(globals.some(g => g.key === path && g.execute), `Missing execute permission for ${path}`);
-      if (path === 'setTimeout') {
-        timers.push({ at: now + args[1], callback: args[0] });
-        return timers.length;
-      }
       assert.equal(path, 'JoinStories.sendCartValidated');
       assert.ok(available && analyticsReady);
       calls.push(JSON.parse(JSON.stringify(args[0])));
@@ -145,4 +143,9 @@ test('keeps waiting when the controller appears before analytics during a retry'
   assert.equal(tag.calls.length, 1);
   assert.equal(tag.successes, 1);
   assert.equal(tag.failures, 0);
+});
+
+
+test('does not request the reserved setTimeout global rejected by GTM import', () => {
+  assert.ok(!globals.some(g => g.key === 'setTimeout'));
 });

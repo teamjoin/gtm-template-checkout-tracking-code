@@ -24,7 +24,7 @@ Open http://localhost:8380/. Generated bundles and template downloads are ignore
 Use a separate Web container with no production tags. Keep changes in Preview; do not publish them to a merchant container.
 
 1. Import `original.tpl` and `fixed.tpl` from the page's download links as two separate custom tag templates. Give them distinct names.
-2. Check the corrected template's permissions. It reads `JoinStories.sendCartValidated` and `joinStories.globalScript.loaded`, and executes `JoinStories.sendCartValidated` and `setTimeout`.
+2. Check the corrected template's permissions. It reads `JoinStories.sendCartValidated` and `joinStories.globalScript.loaded`, and executes `JoinStories.sendCartValidated`. Scheduling uses GTM’s native `callLater` API.
 3. Create Data Layer Variables, version 2, for `ecommerce.transaction_id` and `ecommerce.items`.
 4. Create one tag with each template. Set transaction ID to the transaction variable, products to the items variable, total base amount to `29`, total final amount to `29`, and currency to `EUR`. Leave mapping keys empty to use the existing GA4 fallback.
 5. Give the original tag a Custom Event trigger named `qa_checkout_original`. Give the corrected tag a Custom Event trigger named `qa_checkout_fixed`.
