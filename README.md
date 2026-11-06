@@ -14,6 +14,20 @@ This template provides an easy way to implement Join Stories' tracking functiona
 4. Configure the template settings as needed
 5. Save and publish your changes
 
+## Global script readiness
+
+Load the JOIN global script on the order confirmation page. If the checkout tag fires first, it checks for `JoinStories.sendCartValidated` every 100 ms for up to five seconds. It sends the checkout once when the method becomes available. If the method stays unavailable, the tag reports failure.
+
+Keep tag sequencing enabled. The wait handles delayed initialization; it cannot replace a missing or blocked global script. Avoid firing a second checkout tag for the same purchase.
+
+## Tests
+
+Run the regression tests with Node.js 24 or later. No dependencies are required.
+
+```sh
+node --test tests/checkout.test.cjs
+```
+
 ## Documentation
 
 For detailed documentation and setup instructions, visit our [help center](https://help.join-stories.com).

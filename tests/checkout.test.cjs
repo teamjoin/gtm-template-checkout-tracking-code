@@ -3,7 +3,13 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const vm = require('node:vm');
 
-const source = readFileSync(`${__dirname}/../template.tpl`, 'utf8')
+const template = readFileSync(`${__dirname}/../template.tpl`, 'utf8');
+const permissions = JSON.parse(template.split('___WEB_PERMISSIONS___')[1].split('___TESTS___')[0]);
+const globals = permissions.find(p => p.instance.key.publicId === 'access_globals')
+  .instance.param[0].value.listItem.map(entry => Object.fromEntries(
+    entry.mapKey.map((key, i) => [key.string, entry.mapValue[i].string ?? entry.mapValue[i].boolean])
+  ));
+const source = template
   .split('___SANDBOXED_JS_FOR_WEB_TEMPLATE___')[1]
   .split('___WEB_PERMISSIONS___')[0];
 
@@ -29,10 +35,12 @@ function checkout(ready = false) {
     makeNumber: Number,
     logToConsole: (...args) => logs.push(args),
     copyFromWindow: path => {
+      assert.ok(globals.some(g => g.key === path && g.read), `Missing read permission for ${path}`);
       assert.equal(path, 'JoinStories.sendCartValidated');
       return available ? () => {} : undefined;
     },
     callInWindow: (path, ...args) => {
+      assert.ok(globals.some(g => g.key === path && g.execute), `Missing execute permission for ${path}`);
       if (path === 'setTimeout') {
         timers.push({ at: now + args[1], callback: args[0] });
         return timers.length;

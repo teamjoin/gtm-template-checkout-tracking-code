@@ -205,16 +205,26 @@ const payload = {
   products: products,
 };
 
-const fn = copyFromWindow("JoinStories.sendCartValidated");
+let attemptsLeft = 50;
 
-if (fn) {
-  callInWindow('JoinStories.sendCartValidated', payload);
-  log('[Success] Join Stories - Checkout Tracking Code.', payload);
-  data.gtmOnSuccess();
-} else {
+function validateCart() {
+  const fn = copyFromWindow('JoinStories.sendCartValidated');
+  if (fn) {
+    callInWindow('JoinStories.sendCartValidated', payload);
+    log('[Success] Join Stories - Checkout Tracking Code.', payload);
+    data.gtmOnSuccess();
+    return;
+  }
+  if (attemptsLeft > 0) {
+    attemptsLeft--;
+    callInWindow('setTimeout', validateCart, 100);
+    return;
+  }
   log('[Failed] Join Stories - Checkout Tracking Code : sendCartValidated not found.');
   data.gtmOnFailure();
 }
+
+validateCart();
 
 
 ___WEB_PERMISSIONS___
@@ -281,6 +291,45 @@ ___WEB_PERMISSIONS___
                   {
                     "type": 8,
                     "boolean": true
+                  },
+                  {
+                    "type": 8,
+                    "boolean": false
+                  },
+                  {
+                    "type": 8,
+                    "boolean": true
+                  }
+                ]
+              },
+              {
+                "type": 3,
+                "mapKey": [
+                  {
+                    "type": 1,
+                    "string": "key"
+                  },
+                  {
+                    "type": 1,
+                    "string": "read"
+                  },
+                  {
+                    "type": 1,
+                    "string": "write"
+                  },
+                  {
+                    "type": 1,
+                    "string": "execute"
+                  }
+                ],
+                "mapValue": [
+                  {
+                    "type": 1,
+                    "string": "setTimeout"
+                  },
+                  {
+                    "type": 8,
+                    "boolean": false
                   },
                   {
                     "type": 8,
