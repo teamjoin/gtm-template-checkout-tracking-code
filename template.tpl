@@ -173,6 +173,8 @@ ___SANDBOXED_JS_FOR_WEB_TEMPLATE___
 
 // Saisissez le code de votre modèle ici.
 const callInWindow = require('callInWindow');
+const callLater = require('callLater');
+const getTimestampMillis = require('getTimestampMillis');
 const makeNumber = require('makeNumber');
 const assertThat = require('assertThat');
 const log = require('logToConsole');
@@ -205,16 +207,26 @@ const payload = {
   products: products,
 };
 
-const fn = copyFromWindow("JoinStories.sendCartValidated");
+const deadline = getTimestampMillis() + 5000;
 
-if (fn) {
-  callInWindow('JoinStories.sendCartValidated', payload);
-  log('[Success] Join Stories - Checkout Tracking Code.', payload);
-  data.gtmOnSuccess();
-} else {
+function validateCart() {
+  const fn = copyFromWindow('JoinStories.sendCartValidated');
+  const analyticsReady = copyFromWindow('joinStories.globalScript.loaded');
+  if (fn && analyticsReady) {
+    callInWindow('JoinStories.sendCartValidated', payload);
+    log('[Success] Join Stories - Checkout Tracking Code.', payload);
+    data.gtmOnSuccess();
+    return;
+  }
+  if (getTimestampMillis() < deadline) {
+    callLater(validateCart);
+    return;
+  }
   log('[Failed] Join Stories - Checkout Tracking Code : sendCartValidated not found.');
   data.gtmOnFailure();
 }
+
+validateCart();
 
 
 ___WEB_PERMISSIONS___
@@ -289,6 +301,45 @@ ___WEB_PERMISSIONS___
                   {
                     "type": 8,
                     "boolean": true
+                  }
+                ]
+              },
+              {
+                "type": 3,
+                "mapKey": [
+                  {
+                    "type": 1,
+                    "string": "key"
+                  },
+                  {
+                    "type": 1,
+                    "string": "read"
+                  },
+                  {
+                    "type": 1,
+                    "string": "write"
+                  },
+                  {
+                    "type": 1,
+                    "string": "execute"
+                  }
+                ],
+                "mapValue": [
+                  {
+                    "type": 1,
+                    "string": "joinStories.globalScript.loaded"
+                  },
+                  {
+                    "type": 8,
+                    "boolean": true
+                  },
+                  {
+                    "type": 8,
+                    "boolean": false
+                  },
+                  {
+                    "type": 8,
+                    "boolean": false
                   }
                 ]
               }

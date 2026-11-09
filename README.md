@@ -14,6 +14,20 @@ This template provides an easy way to implement Join Stories' tracking functiona
 4. Configure the template settings as needed
 5. Save and publish your changes
 
+## Global script readiness
+
+Load the JOIN global script on the order confirmation page. If the checkout tag fires first, it uses GTM’s native `callLater` API to check `JoinStories.sendCartValidated` and `joinStories.globalScript.loaded` asynchronously for up to five seconds. It sends the checkout once when the method is available and analytics initialization has finished. If analytics never become ready, the tag reports failure.
+
+Keep tag sequencing enabled. The wait handles delayed initialization; it cannot replace a missing or blocked global script. Avoid firing a second checkout tag for the same purchase.
+
+## Tests
+
+Run the regression tests with Node.js 24 or later. No dependencies are required.
+
+```sh
+node --test tests/checkout.test.cjs
+```
+
 ## Documentation
 
 For detailed documentation and setup instructions, visit our [help center](https://help.join-stories.com).
